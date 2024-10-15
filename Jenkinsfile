@@ -7,28 +7,33 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code from GitHub') {
             steps {
                 git branch: 'main', url: 'https://github.com/AnandJoy7/terraform-vpc-module.git'
             }
         }
 
-        stage('Terraform Init') {
+        stage('Set Up Python Environment') {
             steps {
-                sh 'terraform init'
+                // Install Python if necessary, e.g.:
+                // sh 'sudo apt-get install python3 python3-pip'
+                sh 'pip install -r requirements.txt'  // If you have any dependencies
             }
         }
 
-        stage('Terraform Plan') {
+        stage('Run Terraform Script') {
             steps {
-                sh 'terraform plan -out=tfplan'
+                sh 'python3 terraform_script.py'
             }
         }
+    }
 
-        stage('Terraform Apply') {
-            steps {
-                sh 'terraform apply -auto-approve tfplan'
-            }
+    post {
+        success {
+            echo "Terraform applied successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check the logs for more details."
         }
     }
 }
